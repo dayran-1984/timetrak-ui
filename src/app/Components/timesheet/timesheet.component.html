@@ -1,0 +1,168 @@
+<div class="row mt-2">
+    <div class="col-md-11">
+        <form class="row row-cols-sm-auto">
+            <div class="col-12">
+              <div class="dp-hidden position-absolute">
+                <div class="input-group">
+                  <input name="datepicker"
+                         class="form-control"
+                         ngbDatepicker
+                         #datepicker="ngbDatepicker"
+                         [autoClose]="'outside'"
+                         (dateSelect)="onDateSelection($event)"
+                         [displayMonths]="2"
+                         [dayTemplate]="t"
+                         outsideDays="hidden"
+                         [startDate]="fromDate!"
+                         tabindex="-1">
+                  <ng-template #t let-date let-focused="focused">
+                    <span class="custom-day"
+                          [class.focused]="focused"
+                          [class.range]="isRange(date)"
+                          [class.faded]="isHovered(date) || isInside(date)"
+                          (mouseenter)="hoveredDate = date"
+                          (mouseleave)="hoveredDate = null">
+                      {{ date.day }}
+                    </span>
+                  </ng-template>
+                </div>
+              </div>
+              <div class="input-group">
+                <input #dpFromDate [disabled]="true"
+                       class="form-control" placeholder="yyyy-mm-dd"
+                       name="dpFromDate"
+                       [value]="formatter.format(fromDate)"
+                       (input)="fromDate = validateInput(fromDate, dpFromDate.value)">
+                <button class="btn btn-outline-secondary calendar" (click)="datepicker.toggle()" type="button">
+                    <img src="https://icons.iconarchive.com/icons/paomedia/small-n-flat/24/calendar-icon.png" alt="calendar">
+                </button>
+              </div>
+            </div>
+            <div class="col-12">
+              <div class="input-group">
+                <input #dpToDate [disabled]="true"
+                       class="form-control" placeholder="yyyy-mm-dd"
+                       name="dpToDate"
+                       [value]="formatter.format(toDate)"
+                       (input)="toDate = validateInput(toDate, dpToDate.value)">
+                <button class="btn btn-outline-secondary calendar" (click)="datepicker.toggle()" type="button">
+                    <img src="https://icons.iconarchive.com/icons/paomedia/small-n-flat/24/calendar-icon.png" alt="calendar">
+                </button>
+              </div>
+            </div>
+            <div class="col-12">
+                <button class="btn btn-warning" (click)="getRangeTimeSheets()">Search</button>
+                &nbsp;
+                <button class="btn btn-warning" (click)="clear()">Clear</button>
+            </div>
+        </form>
+    </div>    
+    <div class="col-md-1">
+        <button class="btn btn-info" *ngIf="clockInPushed" style="font-size: smaller;" (click)="addClockIn()">Clock In</button>
+        <button class="btn btn-danger" *ngIf="clockOutPushed" style="font-size: smaller;" (click)="addClockOut()" [disabled]="disabledClockOut">Clock Out</button>
+    </div>  
+</div>
+<div *ngIf="loading" class="spinner-border spinner-border-sm"></div>
+<div class="mt-2" *ngIf="loading==false && (timeSheetList && timeSheetList.length > 0)">
+    <ngb-accordion #acc="ngbAccordion" activeIds="ngb-panel-0">
+        <ngb-panel *ngFor="let ts of timeSheetList">
+          <ng-template ngbPanelTitle>
+            <span>{{ts.dateFormated}}</span>
+            &nbsp;&nbsp;&nbsp;
+            <span>{{duration(ts.clockIn,ts.clockOut)}}</span>
+          </ng-template>
+          <ng-template ngbPanelContent>
+            <div class="row mt-2">
+                <div class="col-md-2" style="width: 12%;">
+                    <div class="card" style="width: 8rem;">
+                        <div class="card-body body-card">
+                            <h6 class="card-title">Total</h6>
+                            <h6 class="card-subtitle mb-2 text-muted">{{duration(ts.clockIn,ts.clockOut)}}</h6>
+                            <div class="row">
+                                <div class="col-md-2">
+                                    <span *ngIf="ts.clockOut==null" (click)="addBreak(content,ts.id)" class="badge text-bg-primary text-end"
+                                        style="background-color: RGBA(25,135,84,var(--bs-bg-opacity,1))!important; cursor: pointer;">+ Break</span>
+                                    <span *ngIf="ts.clockOut!=null" class="badge text-bg-primary text-end"
+                                        style="background-color: grey!important; text-decoration-line: line-through;">+ Break</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-2"style="width: 12%;">
+                    <div class="card" style="width: 8rem;">
+                        <div class="card-body body-card">
+                            <h6 class="card-title">{{clockInClockOutFormat(ts.clockIn)}}</h6>
+                            <h6 class="card-subtitle mb-2 text-muted">Early</h6>
+                            <div class="row">
+                                <div class="col-md-2">
+                                    <span class="badge text-bg-primary text-end"
+                                        style="background-color: RGBA(25,135,84,var(--bs-bg-opacity,1))!important;">Clock In</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-2" style="width: 12%;" *ngFor="let bts of ts.breakTimeSheets">
+                    <div class="card" style="width: 8rem;">
+                        <div class="card-body body-card">
+                            <h6 class="card-title">Break</h6>
+                            <h6 class="card-subtitle mb-2 text-muted">{{bts.amount}} {{bts.timeType.type}}</h6>
+                            <div class="row">
+                                <div class="col-md-2">
+                                    <span class="badge text-bg-primary text-end"
+                                        style="background-color: #ffc107 !important;">Unpaid</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-2"style="width: 12%;" *ngIf="ts.clockOut != null">
+                    <div class="card" style="width: 8rem;">
+                        <div class="card-body body-card">
+                            <h6 class="card-title">{{clockInClockOutFormat(ts.clockOut)}}</h6>
+                            <h6 class="card-subtitle mb-2 text-muted">On Time</h6>
+                            <div class="row">
+                                <div class="col-md-2">
+                                    <span class="badge text-bg-primary text-end"
+                                        style="background-color: RGBA(220,53,69,var(--bs-bg-opacity,1))!important;">Clock Out</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+          </ng-template>
+        </ngb-panel>
+    </ngb-accordion>
+</div>
+
+<app-toasts aria-live="polite" aria-atomic="true"></app-toasts>
+
+<ng-template #content let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="modal-basic-title">Add Break</h4>
+      <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
+    </div>
+    <div class="modal-body">
+        <div class="mb-3">
+          <label for="amount">Amount</label>
+          <div class="input-group">
+            <input id="amoun" class="form-control" placeholder="1" [(ngModel)]="amountBrake">
+          </div>
+        </div>
+        <div class="mb-3">
+          <label for="amount">Type</label>
+          <div class="input-group">
+            <select [(ngModel)]="typeBreakSelected" class="form-control">
+                <option *ngFor="let type of typeBreak" [value]="type.id">
+                     {{type.type}}
+                 </option>
+            </select>
+          </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-outline-dark" (click)="modal.close('Save click')">Save</button>
+    </div>
+  </ng-template>

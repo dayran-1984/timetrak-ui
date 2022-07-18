@@ -1,0 +1,69 @@
+<div class="container mt-4">
+    <div class="alert alert-info">Welcome <strong>{{getFullName()}}</strong> to TimeTrak GO System !!!</div>
+    <div *ngIf="loading" class="spinner-border spinner-border-sm"></div>
+    <div class="row mt-2" *ngIf="users">
+        <div class="col-md-2">
+            <div class="card" style="width: 12rem;" *ngFor="let user of users">
+                <div class="card-body body-card">
+                    <h6 class="card-title">Total Hours</h6>
+                    <h6 class="card-subtitle mb-2 text-muted">24.50</h6>
+                    <div class="row">
+                        <div class="col-md-8">
+                            <span>Regular</span>
+                        </div>
+                        <div class="col-md-2">
+                            <span class="badge text-bg-primary text-end"
+                                style="background-color: RGBA(25,135,84,var(--bs-bg-opacity,1))!important;">24.50</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card" style="width: 12rem;" *ngFor="let user of users">
+                <div class="card-body body-card">
+                    <h6 class="card-title">Projected Hours</h6>
+                    <h6 class="card-subtitle mb-2 text-muted">40.50</h6>
+                    <div class="row">
+                        <div class="col-md-8">
+                            <span>Regular</span>
+                        </div>
+                        <div class="col-md-2">
+                            <span class="badge text-bg-primary"
+                                style="background-color: RGBA(25,135,84,var(--bs-bg-opacity,1))!important;">40.00</span>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-8">
+                            <span>OverTime</span>
+                        </div>
+                        <div class="col-md-2">
+                            <span class="badge text-bg-primary"
+                                style="background-color: RGBA(220,53,69,var(--bs-bg-opacity,1))!important;">0.50</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card" style="width: 12rem;" *ngFor="let user of users">
+                <div class="card-body body-card">
+                    <h6 class="card-title">Schedule Hours</h6>
+                    <h6 class="card-subtitle mb-2 text-muted">40.00</h6>
+                    <div class="row">
+                        <div class="col-md-8">
+                            <span>Regular</span>
+                        </div>
+                        <div class="col-md-2">
+                            <span class="badge text-bg-primary"
+                                style="background-color: RGBA(25,135,84,var(--bs-bg-opacity,1))!important;">40.00</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="mt-3">
+        <app-timesheet></app-timesheet>
+    </div>    
+</div>

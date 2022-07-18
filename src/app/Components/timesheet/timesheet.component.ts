@@ -141,7 +141,7 @@ export class TimesheetComponent implements OnInit {
   }
 
   clockInStarted(){
-    if(this.timeSheetList){
+    if(this.timeSheetList.length > 0){
       var tsToday = this.timeSheetList[0];
       var _tsClockIn = new Date(tsToday.clockIn).toDateString();
       let now = new Date().toDateString();
@@ -149,6 +149,8 @@ export class TimesheetComponent implements OnInit {
       this.clockOutPushed = !this.clockInPushed;
       this.disabledClockOut = tsToday.clockOut != null ? true : false;
     }
+    else
+      this.clockInPushed = true;
   }
 
   addBreak(content,tsId) {
